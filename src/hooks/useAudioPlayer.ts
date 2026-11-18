@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PlaybackStatus } from '../types';
 
+function describeMediaError(code: number | undefined): string {
+  switch (code) {
+    case 1: return 'Loading was interrupted. Try again.';
+    case 2: return 'A network error occurred while loading this file.';
+    case 3: return 'This browser could not decode the audio track.';
+    case 4: return 'This audio format is not supported by your browser.';
+    default: return 'This audio file could not be played.';
+  }
+}
+
 interface UseAudioPlayerOptions {
   src: string | null;
   onMetadata?: (duration: number) => void;
@@ -15,6 +25,7 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
   const [isLoading, setLoading] = useState(false);
   const [volume, setVolumeState] = useState(0.8);
   const [muted, setMuted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<PlaybackStatus>(src ? 'loading' : 'empty');
 
   useEffect(() => {
@@ -28,6 +39,7 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
       setCurrentTime(0);
       setPlaying(false);
       setLoading(false);
+      setError(null);
       setStatus('empty');
       return;
     }
@@ -38,6 +50,7 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
     setCurrentTime(0);
     setPlaying(false);
     setLoading(true);
+    setError(null);
     setStatus('loading');
   }, [src]);
 
@@ -119,6 +132,35 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
     setStatus('ended');
   }, []);
 
+  const handleError = useCallback(() => {
+    const element = audioRef.current;
+    setError(describeMediaError(element?.error?.code));
+    setLoading(false);
+    setPlaying(false);
+    setStatus('error');
+  }, []);
+
+  const clearError = useCallback(() => {
+    setError(null);
+    setStatus((current) => (current === 'error' ? 'ready' : current));
+  }, []);
+
+  const retry = useCallback(async () => {
+    const element = audioRef.current;
+    if (!element || !src) return;
+    setError(null);
+    setLoading(true);
+    setStatus('loading');
+    element.load();
+    try {
+      await element.play();
+    } catch {
+      setError('Playback is blocked. Press play again to allow audio.');
+      setLoading(false);
+      setStatus('error');
+    }
+  }, [src]);
+
   const toggle = useCallback(async () => {
     const element = audioRef.current;
     if (!element || !src) return;
@@ -127,11 +169,13 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
       return;
     }
     try {
+      clearError();
       await element.play();
     } catch {
+      setError('Playback was blocked by the browser. Press play again to allow audio.');
       setStatus('error');
     }
-  }, [src]);
+  }, [clearError, src]);
 
   const seek = useCallback((seconds: number) => {
     const element = audioRef.current;
@@ -150,10 +194,13 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
     isLoading,
     volume,
     muted,
+    error,
     status,
     setStatus,
     toggle,
     seek,
+    retry,
+    clearError,
     changeVolume,
     toggleMute,
     handleVolumeChange,
@@ -166,6 +213,7 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
     handlePlay,
     handlePause,
     handleEnded,
+    handleError,
   };
 }
 

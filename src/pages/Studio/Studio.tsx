@@ -98,6 +98,7 @@ export default function Studio() {
         onPlay={player.handlePlay}
         onPause={player.handlePause}
         onEnded={player.handleEnded}
+        onError={player.handleError}
         className="visually-hidden"
       />
     </div>

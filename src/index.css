@@ -1569,6 +1569,31 @@ input[type='range']::-moz-range-thumb {
   line-height: 1.6;
 }
 
+.player-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(255, 122, 122, 0.2);
+  background: rgba(255, 90, 90, 0.06);
+  color: #ffb4b4;
+  font-size: 11px;
+}
+
+.player-error span {
+  flex: 1;
+}
+
+.player-error > svg {
+  flex: 0 0 auto;
+}
+
+.player-retry {
+  min-height: 28px;
+  padding-inline: 10px;
+  font-size: 10px;
+}
+
 .player-main {
   display: flex;
   align-items: center;

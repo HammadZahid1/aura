@@ -1,4 +1,4 @@
-import { LoaderCircle, Pause, Play, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Pause, Play, RotateCcw, Volume2, VolumeX, X } from 'lucide-react';
 import { formatTime } from '../../lib/audio/formatTime';
 import type { AudioPlayerApi } from '../../hooks/useAudioPlayer';
 
@@ -8,13 +8,25 @@ interface PlayerBarProps {
 }
 
 export function PlayerBar({ player, hasTrack }: PlayerBarProps) {
-  const { duration, currentTime, isPlaying, isLoading, volume, muted, status, toggle, seek, changeVolume, toggleMute } = player;
+  const { duration, currentTime, isPlaying, isLoading, volume, muted, error, status, toggle, seek, retry, clearError, changeVolume, toggleMute } = player;
   const disabled = !hasTrack || duration <= 0;
   const loading = isLoading || status === 'loading';
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <section className="panel panel-solid studio-player" aria-label="Audio player">
+      {error && (
+        <div className="player-error" role="alert">
+          <AlertCircle size={15} strokeWidth={1.8} aria-hidden="true" />
+          <span>{error}</span>
+          <button className="btn btn-accent player-retry" onClick={() => void retry()}>
+            Retry
+          </button>
+          <button className="icon-button" onClick={clearError} aria-label="Dismiss playback error">
+            <X size={14} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+        </div>
+      )}
       <div className="player-main">
         <button
           className="btn btn-icon btn-primary player-play"
