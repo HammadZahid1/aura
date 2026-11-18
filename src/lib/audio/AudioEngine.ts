@@ -100,6 +100,26 @@ export class AudioEngine {
     return this.frequencyBuffer;
   }
 
+  /**
+   * Fill and return the shared time-domain buffer. Values around 128 represent silence.
+   */
+  readWaveform(): Uint8Array {
+    if (!this.analyser) return this.timeBuffer;
+    this.analyser.getByteTimeDomainData(this.timeBuffer);
+    return this.timeBuffer;
+  }
+
+  /** Root-mean-square level of the most recently read waveform buffer, normalised to 0..1. */
+  get level(): number {
+    if (this.timeBuffer.length === 0) return 0;
+    let sum = 0;
+    for (let i = 0; i < this.timeBuffer.length; i += 1) {
+      const sample = (this.timeBuffer[i] - 128) / 128;
+      sum += sample * sample;
+    }
+    return Math.sqrt(sum / this.timeBuffer.length);
+  }
+
   /** Disconnect everything and close the context. Used on unmount or element replacement. */
   detach(): void {
     try {
