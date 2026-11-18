@@ -2,3 +2,4 @@
 import './auraRing';
 import './waveform';
 import './spectrum';
+import './particles';
