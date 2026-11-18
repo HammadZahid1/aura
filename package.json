@@ -2,6 +2,12 @@
   "name": "aura-audio-visualization-studio",
   "private": true,
   "version": "0.1.0",
+  "description": "A premium frontend-only audio visualization studio powered by the native Web Audio API.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HammadZahid1/aura.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
