@@ -102,20 +102,28 @@ export function ModePreview({ mode, overrides, className = '' }: ModePreviewProp
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let animation = 0;
+    let visible = !('IntersectionObserver' in window);
+    draw(0);
 
-    const observer = new ResizeObserver(() => {
+    const resizeObserver = new ResizeObserver(() => {
       size = resizeCanvas(canvas, ctx);
       params.width = size.width;
       params.height = size.height;
-      if (reduced) draw(0);
+      if (reduced && visible) draw(0);
     });
-    observer.observe(canvas);
+    resizeObserver.observe(canvas);
 
-    if (reduced) {
-      draw(0);
-    } else {
+    const visibilityObserver = 'IntersectionObserver' in window
+      ? new IntersectionObserver((entries) => {
+        visible = entries.some((entry) => entry.isIntersecting);
+        if (visible && reduced) draw(0);
+      }, { rootMargin: '120px' })
+      : null;
+    visibilityObserver?.observe(canvas);
+
+    if (!reduced) {
       const render = (timestamp: number) => {
-        if (!document.hidden) draw(timestamp);
+        if (visible && !document.hidden) draw(timestamp);
         animation = window.requestAnimationFrame(render);
       };
       animation = window.requestAnimationFrame(render);
@@ -123,7 +131,8 @@ export function ModePreview({ mode, overrides, className = '' }: ModePreviewProp
 
     return () => {
       window.cancelAnimationFrame(animation);
-      observer.disconnect();
+      resizeObserver.disconnect();
+      visibilityObserver?.disconnect();
     };
   }, [mode, theme]);
 

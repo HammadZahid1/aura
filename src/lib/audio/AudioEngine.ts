@@ -145,6 +145,19 @@ export class AudioEngine {
 
   /** Read one complete frame, reusing the typed arrays and band object between calls. */
   readFrame(active: boolean): AudioFrame {
+    if (!active) {
+      // Idle renderers use deterministic motion, so skip analyser reads entirely.
+      const idleBands = this.frame.bands;
+      idleBands.bass = 0;
+      idleBands.mid = 0;
+      idleBands.treble = 0;
+      idleBands.overall = 0;
+      this.frame.level = 0;
+      this.frame.peak = 0;
+      this.frame.active = false;
+      return this.frame;
+    }
+
     const frequency = this.readFrequency();
     const waveform = this.readWaveform();
     const sampleRate = this.sampleRate;
