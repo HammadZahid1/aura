@@ -90,6 +90,16 @@ export class AudioEngine {
     return { frequency: this.frequencyBuffer, time: this.timeBuffer };
   }
 
+  /**
+   * Fill and return the shared frequency buffer. Values are byte magnitudes in the
+   * 0..255 range for each frequency bin, taken from the actual playing media element.
+   */
+  readFrequency(): Uint8Array {
+    if (!this.analyser) return this.frequencyBuffer;
+    this.analyser.getByteFrequencyData(this.frequencyBuffer);
+    return this.frequencyBuffer;
+  }
+
   /** Disconnect everything and close the context. Used on unmount or element replacement. */
   detach(): void {
     try {
