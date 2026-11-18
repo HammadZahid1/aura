@@ -1584,30 +1584,17 @@ input[type='range']::-moz-range-thumb {
   text-align: center;
 }
 
-.player-progress,
-.player-volume {
-  position: relative;
+.player-seek {
   flex: 1;
   min-width: 60px;
 }
 
-.player-volume {
-  max-width: 100px;
+.player-duration {
+  color: var(--muted-deep);
 }
 
-.player-progress-track {
-  height: 4px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-}
-
-.player-progress-fill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent-glow);
+.spin {
+  animation: aura-spin 0.9s linear infinite;
 }
 
 @media (max-width: 1180px) {

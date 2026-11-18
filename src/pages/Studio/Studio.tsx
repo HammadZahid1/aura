@@ -74,7 +74,7 @@ export default function Studio() {
           />
           <VisualizerStage config={config} />
           <AudioInsights />
-          <PlayerBar />
+          <PlayerBar player={player} hasTrack={Boolean(track)} />
         </div>
         <div className="drop-overlay" aria-hidden={!isDragging}>
           <div className="drop-overlay-inner">
@@ -89,6 +89,10 @@ export default function Studio() {
         ref={player.audioRef}
         preload="metadata"
         onLoadedMetadata={player.handleLoadedMetadata}
+        onTimeUpdate={player.handleTimeUpdate}
+        onPlay={player.handlePlay}
+        onPause={player.handlePause}
+        onEnded={player.handleEnded}
         className="visually-hidden"
       />
     </div>
