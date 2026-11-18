@@ -2,6 +2,10 @@
 
 export type Route = '/' | '/studio' | '/gallery' | '/settings' | '/about';
 
+export interface PageProps {
+  onNavigate: (route: Route) => void;
+}
+
 export type VisualizationMode = 'aura-ring' | 'waveform' | 'spectrum' | 'particles' | 'orbital';
 
 export type ThemeName = 'cyan' | 'violet' | 'blue' | 'aurora' | 'mono';
