@@ -1,15 +1,17 @@
-import { FileAudio2, Trash2, Upload } from 'lucide-react';
+import { AlertCircle, FileAudio2, Trash2, Upload, X } from 'lucide-react';
 import { UploadZone } from './UploadZone';
 import { formatBytes } from '../../lib/audio/formatTime';
 import type { AudioTrack } from '../../types';
 
 interface AudioLibraryProps {
   track: AudioTrack | null;
+  error: string | null;
   onFile: (file: File) => void;
   onRemove: () => void;
+  onDismissError: () => void;
 }
 
-export function AudioLibrary({ track, onFile, onRemove }: AudioLibraryProps) {
+export function AudioLibrary({ track, error, onFile, onRemove, onDismissError }: AudioLibraryProps) {
   return (
     <section className="panel panel-solid studio-library" aria-labelledby="library-title">
       <div className="panel-header">
@@ -20,6 +22,15 @@ export function AudioLibrary({ track, onFile, onRemove }: AudioLibraryProps) {
         <span className="label">Local</span>
       </div>
       <div className="panel-body library-body">
+        {error && (
+          <div className="upload-error" role="alert">
+            <AlertCircle size={15} strokeWidth={1.8} aria-hidden="true" />
+            <span>{error}</span>
+            <button className="icon-button" onClick={onDismissError} aria-label="Dismiss error">
+              <X size={14} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+          </div>
+        )}
         {track ? (
           <div className="library-loaded">
             <div className="loaded-file">

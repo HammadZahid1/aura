@@ -6,6 +6,7 @@ import { AudioInsights } from '../../components/insights/AudioInsights';
 import { PlayerBar } from '../../components/player/PlayerBar';
 import { useAudioDrop } from '../../hooks/useAudioDrop';
 import { DEFAULT_CONFIG } from '../../data/visualizers';
+import { validateAudioFile } from '../../lib/audio/fileValidation';
 import { cn } from '../../lib/utilities/cn';
 import type { AudioTrack, PlaybackStatus, VisualizerConfig } from '../../types';
 
@@ -13,6 +14,7 @@ export default function Studio() {
   const [config] = useState<VisualizerConfig>(DEFAULT_CONFIG);
   const [status] = useState<PlaybackStatus>('empty');
   const [track, setTrack] = useState<AudioTrack | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const objectUrlRef = useRef<string | null>(null);
   const statusLabel = useMemo(() => status.toUpperCase(), [status]);
 
@@ -21,6 +23,13 @@ export default function Studio() {
   }, []);
 
   const handleFile = (file: File) => {
+    const validation = validateAudioFile(file);
+    if (!validation.valid) {
+      setError(validation.error ?? 'This file cannot be used.');
+      return;
+    }
+
+    setError(null);
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     const url = URL.createObjectURL(file);
     objectUrlRef.current = url;
@@ -31,6 +40,7 @@ export default function Studio() {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     objectUrlRef.current = null;
     setTrack(null);
+    setError(null);
   };
 
   const { isDragging, dropHandlers } = useAudioDrop(handleFile);
@@ -50,7 +60,13 @@ export default function Studio() {
 
       <div className={cn('studio-grid-wrap', isDragging && 'is-dragging')} {...dropHandlers}>
         <div className="studio-grid">
-          <AudioLibrary track={track} onFile={handleFile} onRemove={handleRemove} />
+          <AudioLibrary
+            track={track}
+            error={error}
+            onFile={handleFile}
+            onRemove={handleRemove}
+            onDismissError={() => setError(null)}
+          />
           <VisualizerStage config={config} />
           <AudioInsights />
           <PlayerBar />

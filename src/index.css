@@ -1329,6 +1329,35 @@ input[type='range']::-moz-range-thumb {
   cursor: pointer;
 }
 
+.upload-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 10px 10px 12px;
+  border: 1px solid rgba(255, 122, 122, 0.28);
+  border-radius: 9px;
+  background: rgba(255, 90, 90, 0.07);
+  color: #ffb4b4;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.upload-error > svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.upload-error span {
+  flex: 1;
+}
+
+.upload-error .icon-button {
+  width: 22px;
+  height: 22px;
+  color: inherit;
+}
+
 .library-privacy {
   display: flex;
   align-items: center;
