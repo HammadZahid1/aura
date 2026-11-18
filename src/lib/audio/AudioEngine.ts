@@ -1,3 +1,5 @@
+import { FFT_SIZE, MAX_DECIBELS, MIN_DECIBELS, SMOOTHING_TIME_CONSTANT } from './audioConfig';
+
 /**
  * Owns the browser's audio analysis graph.
  *
@@ -8,8 +10,11 @@
 export class AudioEngine {
   private context: AudioContext | null = null;
   private source: MediaElementAudioSourceNode | null = null;
+  private analyser: AnalyserNode | null = null;
   private output: GainNode | null = null;
   private element: HTMLAudioElement | null = null;
+  private frequencyBuffer: Uint8Array = new Uint8Array(0);
+  private timeBuffer: Uint8Array = new Uint8Array(0);
 
   /** Bind the persistent media element. Calling with the same element is a no-op. */
   attach(element: HTMLAudioElement): void {
@@ -31,13 +36,23 @@ export class AudioEngine {
       try {
         const context = new AudioContextCtor();
         const source = context.createMediaElementSource(this.element);
+        const analyser = context.createAnalyser();
+        analyser.fftSize = FFT_SIZE;
+        analyser.smoothingTimeConstant = SMOOTHING_TIME_CONSTANT;
+        analyser.minDecibels = MIN_DECIBELS;
+        analyser.maxDecibels = MAX_DECIBELS;
+
         const output = context.createGain();
-        source.connect(output);
+        source.connect(analyser);
+        analyser.connect(output);
         output.connect(context.destination);
 
         this.context = context;
         this.source = source;
+        this.analyser = analyser;
         this.output = output;
+        this.frequencyBuffer = new Uint8Array(analyser.frequencyBinCount);
+        this.timeBuffer = new Uint8Array(analyser.fftSize);
       } catch {
         return false;
       }
@@ -62,10 +77,24 @@ export class AudioEngine {
     return this.context?.state ?? 'uninitialised';
   }
 
+  get binCount(): number {
+    return this.analyser?.frequencyBinCount ?? 0;
+  }
+
+  get sampleRate(): number {
+    return this.context?.sampleRate ?? 44100;
+  }
+
+  /** Exposed for renderers that need stable references to the analysis buffers. */
+  get buffers(): { frequency: Uint8Array; time: Uint8Array } {
+    return { frequency: this.frequencyBuffer, time: this.timeBuffer };
+  }
+
   /** Disconnect everything and close the context. Used on unmount or element replacement. */
   detach(): void {
     try {
       this.source?.disconnect();
+      this.analyser?.disconnect();
       this.output?.disconnect();
     } catch {
       // Nodes may already be disconnected; nothing to do.
@@ -73,8 +102,11 @@ export class AudioEngine {
 
     const context = this.context;
     this.source = null;
+    this.analyser = null;
     this.output = null;
     this.context = null;
+    this.frequencyBuffer = new Uint8Array(0);
+    this.timeBuffer = new Uint8Array(0);
     this.element = null;
 
     if (context && context.state !== 'closed') {
