@@ -1,20 +1,25 @@
 import { Maximize2, RotateCcw } from 'lucide-react';
 import { getMode } from '../../data/visualizers';
+import type { AudioEngine } from '../../lib/audio/AudioEngine';
 import type { PlaybackStatus, VisualizerConfig } from '../../types';
 
 interface VisualizerStageProps {
   config: VisualizerConfig;
   status: PlaybackStatus;
+  engineReady: boolean;
+  engine: AudioEngine;
 }
 
-export function VisualizerStage({ config, status }: VisualizerStageProps) {
+export function VisualizerStage({ config, status, engineReady, engine }: VisualizerStageProps) {
   const mode = getMode(config.mode);
 
   return (
     <section className="panel panel-solid studio-stage" aria-labelledby="stage-title">
       <div className="stage-header">
         <div>
-          <span className="label">Output / {mode.label}</span>
+          <span className="label" title={`AudioContext: ${engine.contextState}`}>
+            Output / {mode.label}
+          </span>
           <h2 className="panel-title" id="stage-title">
             Visualization Stage
           </h2>
@@ -40,7 +45,9 @@ export function VisualizerStage({ config, status }: VisualizerStageProps) {
           <span className="chip-dot" />
           {status === 'playing' ? 'Live signal' : status}
         </span>
-        <span className="mono stage-hint">Load audio to activate the visualizer</span>
+        <span className="mono stage-hint">
+          {engineReady ? 'Analysis graph connected' : 'Load audio to activate the visualizer'}
+        </span>
       </div>
     </section>
   );

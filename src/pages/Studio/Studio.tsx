@@ -6,6 +6,7 @@ import { AudioInsights } from '../../components/insights/AudioInsights';
 import { PlayerBar } from '../../components/player/PlayerBar';
 import { useAudioDrop } from '../../hooks/useAudioDrop';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
+import { useAudioEngine } from '../../hooks/useAudioEngine';
 import { DEFAULT_CONFIG } from '../../data/visualizers';
 import { validateAudioFile } from '../../lib/audio/fileValidation';
 import { cn } from '../../lib/utilities/cn';
@@ -22,6 +23,7 @@ export default function Studio() {
   }, []);
 
   const player = useAudioPlayer({ src: track?.url ?? null, onMetadata: handleMetadata });
+  const { engine, isReady: engineReady } = useAudioEngine(player.audioRef, player.isPlaying);
 
   useEffect(() => () => {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
@@ -72,7 +74,12 @@ export default function Studio() {
             onRemove={handleRemove}
             onDismissError={() => setError(null)}
           />
-          <VisualizerStage config={config} status={player.status} />
+          <VisualizerStage
+            config={config}
+            status={player.status}
+            engineReady={engineReady}
+            engine={engine}
+          />
           <AudioInsights status={player.status} />
           <PlayerBar player={player} hasTrack={Boolean(track)} />
         </div>
