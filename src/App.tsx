@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { AppShell } from './components/layout/AppShell';
 import { TopNav } from './components/navigation/TopNav';
+import { ThemeProvider } from './context/ThemeProvider';
 import { useHashRoute } from './hooks/useHashRoute';
 import type { PageProps, Route } from './types';
 import Home from './pages/Home/Home';
@@ -17,7 +18,7 @@ const PAGES: Record<Route, ComponentType<PageProps>> = {
   '/about': About,
 };
 
-export default function App() {
+function RoutedApp() {
   const [route, navigate] = useHashRoute();
   const Page = PAGES[route];
 
@@ -25,5 +26,13 @@ export default function App() {
     <AppShell header={<TopNav route={route} onNavigate={navigate} />}>
       <Page onNavigate={navigate} />
     </AppShell>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <RoutedApp />
+    </ThemeProvider>
   );
 }

@@ -1,5 +1,6 @@
 import { SlidersHorizontal } from 'lucide-react';
 import { ControlSlider } from '../ui/ControlSlider';
+import { ThemePicker } from './ThemePicker';
 import type { VisualizerConfig } from '../../types';
 
 interface VisualizerControlsProps {
@@ -98,6 +99,10 @@ export function VisualizerControls({ config, onChange }: VisualizerControlsProps
           hint="Brightness of the ambient stage lighting."
           onChange={(backgroundBrightness) => onChange({ backgroundBrightness })}
         />
+        <div className="controls-theme">
+          <span className="label">Color theme</span>
+          <ThemePicker />
+        </div>
       </div>
     </section>
   );

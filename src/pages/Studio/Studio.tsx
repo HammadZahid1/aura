@@ -6,6 +6,7 @@ import { AudioInsights } from '../../components/insights/AudioInsights';
 import { VisualizerControls } from '../../components/controls/VisualizerControls';
 import { PlayerBar } from '../../components/player/PlayerBar';
 import { useAudioDrop } from '../../hooks/useAudioDrop';
+import { useTheme } from '../../hooks/useTheme';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useAudioEngine } from '../../hooks/useAudioEngine';
 import { DEFAULT_CONFIG, MODE_IDS } from '../../data/visualizers';
@@ -14,7 +15,14 @@ import { cn } from '../../lib/utilities/cn';
 import type { AudioTrack, VisualizerConfig } from '../../types';
 
 export default function Studio() {
-  const [config, setConfig] = useState<VisualizerConfig>(DEFAULT_CONFIG);
+  const { theme, setTheme } = useTheme();
+  const [baseConfig, setBaseConfig] = useState<VisualizerConfig>(DEFAULT_CONFIG);
+  const config: VisualizerConfig = { ...baseConfig, theme };
+
+  const updateConfig = (patch: Partial<VisualizerConfig>) => {
+    if (patch.theme) setTheme(patch.theme);
+    setBaseConfig((current) => ({ ...current, ...patch }));
+  };
   const [track, setTrack] = useState<AudioTrack | null>(null);
   const [error, setError] = useState<string | null>(null);
   const objectUrlRef = useRef<string | null>(null);
@@ -60,7 +68,7 @@ export default function Studio() {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
       const index = Number(event.key) - 1;
       if (index >= 0 && index < MODE_IDS.length) {
-        setConfig((current) => ({ ...current, mode: MODE_IDS[index] }));
+        setBaseConfig((current) => ({ ...current, mode: MODE_IDS[index] }));
       }
     };
     window.addEventListener('keydown', handleShortcut);
@@ -99,15 +107,15 @@ export default function Studio() {
             status={player.status}
             engineReady={engineReady}
             engine={engine}
-            onModeChange={(mode) => setConfig((current) => ({ ...current, mode }))}
-            onReset={() => setConfig(DEFAULT_CONFIG)}
+            onModeChange={(mode) => updateConfig({ mode })}
+            onReset={() => {
+              setBaseConfig(DEFAULT_CONFIG);
+              setTheme('cyan');
+            }}
             onFullscreen={requestFullscreen}
           />
           <AudioInsights status={player.status} />
-          <VisualizerControls
-            config={config}
-            onChange={(patch) => setConfig((current) => ({ ...current, ...patch }))}
-          />
+          <VisualizerControls config={config} onChange={updateConfig} />
           <PlayerBar player={player} hasTrack={Boolean(track)} />
         </div>
         <div className="drop-overlay" aria-hidden={!isDragging}>
