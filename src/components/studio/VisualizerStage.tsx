@@ -1,8 +1,12 @@
-import { Maximize2, RotateCcw } from 'lucide-react';
+import type { RefObject } from 'react';
+import { Maximize2, Minimize2, RotateCcw } from 'lucide-react';
 import { getMode } from '../../data/visualizers';
 import type { AudioEngine } from '../../lib/audio/AudioEngine';
+import { cn } from '../../lib/utilities/cn';
+import type { AudioPlayerApi } from '../../hooks/useAudioPlayer';
 import { VisualizerCanvas } from '../visualizers/VisualizerCanvas';
 import { ModeSwitcher } from './ModeSwitcher';
+import { FullscreenOverlay } from './FullscreenOverlay';
 import type { AudioSnapshot, PlaybackStatus, VisualizerConfig, VisualizationMode } from '../../types';
 
 interface VisualizerStageProps {
@@ -10,6 +14,11 @@ interface VisualizerStageProps {
   status: PlaybackStatus;
   engineReady: boolean;
   engine: AudioEngine;
+  stageRef: RefObject<HTMLElement | null>;
+  isFullscreen: boolean;
+  player: AudioPlayerApi;
+  trackName: string;
+  hasTrack: boolean;
   onFrame?: (snapshot: AudioSnapshot) => void;
   onModeChange: (mode: VisualizationMode) => void;
   onReset: () => void;
@@ -21,6 +30,11 @@ export function VisualizerStage({
   status,
   engineReady,
   engine,
+  stageRef,
+  isFullscreen,
+  player,
+  trackName,
+  hasTrack,
   onFrame,
   onModeChange,
   onReset,
@@ -30,7 +44,11 @@ export function VisualizerStage({
   const active = status === 'playing';
 
   return (
-    <section className="panel panel-solid studio-stage" aria-labelledby="stage-title">
+    <section
+      ref={stageRef}
+      className={cn('panel panel-solid studio-stage', isFullscreen && 'is-fullscreen')}
+      aria-labelledby="stage-title"
+    >
       <div className="stage-header">
         <div>
           <span className="label" title={`AudioContext: ${engine.contextState}`}>
@@ -44,8 +62,17 @@ export function VisualizerStage({
           <button className="icon-button" onClick={onReset} aria-label="Reset visualization" title="Reset view">
             <RotateCcw size={16} strokeWidth={1.8} aria-hidden="true" />
           </button>
-          <button className="icon-button" onClick={onFullscreen} aria-label="Enter fullscreen" title="Fullscreen">
-            <Maximize2 size={16} strokeWidth={1.8} aria-hidden="true" />
+          <button
+            className="icon-button"
+            onClick={onFullscreen}
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            title={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
+          >
+            {isFullscreen ? (
+              <Minimize2 size={16} strokeWidth={1.8} aria-hidden="true" />
+            ) : (
+              <Maximize2 size={16} strokeWidth={1.8} aria-hidden="true" />
+            )}
           </button>
         </div>
       </div>
@@ -67,6 +94,15 @@ export function VisualizerStage({
           {engineReady ? 'Analysis graph connected' : 'Load audio to activate the visualizer'}
         </span>
       </div>
+
+      {isFullscreen && (
+        <FullscreenOverlay
+          player={player}
+          trackName={trackName}
+          hasTrack={hasTrack}
+          onExit={onFullscreen}
+        />
+      )}
     </section>
   );
 }

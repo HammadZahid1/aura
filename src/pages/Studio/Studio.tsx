@@ -6,6 +6,7 @@ import { AudioInsights } from '../../components/insights/AudioInsights';
 import { VisualizerControls } from '../../components/controls/VisualizerControls';
 import { PlayerBar } from '../../components/player/PlayerBar';
 import { useAudioDrop } from '../../hooks/useAudioDrop';
+import { useFullscreen } from '../../hooks/useFullscreen';
 import { useTheme } from '../../hooks/useTheme';
 import { usePreferences } from '../../hooks/usePreferences';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
@@ -36,6 +37,11 @@ export default function Studio() {
 
   const player = useAudioPlayer({ src: track?.url ?? null, onMetadata: handleMetadata });
   const { engine, isReady: engineReady } = useAudioEngine(player.audioRef, player.isPlaying);
+  const stageRef = useRef<HTMLElement>(null);
+  const {
+    isFullscreen,
+    toggle: toggleFullscreen,
+  } = useFullscreen(stageRef);
 
   useEffect(() => () => {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
@@ -71,6 +77,11 @@ export default function Studio() {
       const target = event.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
       if (event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.key.toLowerCase() === 'f') {
+        event.preventDefault();
+        toggleFullscreen();
+        return;
+      }
       const index = Number(event.key) - 1;
       if (index >= 0 && index < MODE_IDS.length) {
         setBaseConfig((current) => ({ ...current, mode: MODE_IDS[index] }));
@@ -78,12 +89,7 @@ export default function Studio() {
     };
     window.addEventListener('keydown', handleShortcut);
     return () => window.removeEventListener('keydown', handleShortcut);
-  }, []);
-
-  const requestFullscreen = () => {
-    if (document.fullscreenElement) return;
-    void document.documentElement.requestFullscreen?.().catch(() => undefined);
-  };
+  }, [toggleFullscreen]);
 
   return (
     <div className="page studio-page container">
@@ -112,6 +118,11 @@ export default function Studio() {
             status={player.status}
             engineReady={engineReady}
             engine={engine}
+            stageRef={stageRef}
+            isFullscreen={isFullscreen}
+            player={player}
+            trackName={track?.name ?? ''}
+            hasTrack={Boolean(track)}
             onFrame={setInsight}
             onModeChange={(mode) => updateConfig({ mode })}
             onReset={() => {
@@ -119,7 +130,7 @@ export default function Studio() {
               setTheme('cyan');
               setBaseConfig({ ...DEFAULT_CONFIG, theme: 'cyan' });
             }}
-            onFullscreen={requestFullscreen}
+            onFullscreen={toggleFullscreen}
           />
           <AudioInsights status={player.status} snapshot={insight} theme={theme} />
           <VisualizerControls config={config} onChange={updateConfig} />
