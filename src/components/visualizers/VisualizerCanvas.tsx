@@ -3,6 +3,7 @@ import { THEMES } from '../../data/themes';
 import { resizeCanvas } from '../../lib/visualization/canvas';
 import { drawStageBackground } from '../../lib/visualization/shared';
 import { getRenderer, type RenderParams } from '../../lib/visualization/renderer';
+import '../../lib/visualization/renderers';
 import type { AudioEngine } from '../../lib/audio/AudioEngine';
 import type { FrequencyBands, VisualizerConfig } from '../../types';
 
