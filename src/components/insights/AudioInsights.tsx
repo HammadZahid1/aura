@@ -1,8 +1,13 @@
 import { Activity } from 'lucide-react';
+import type { PlaybackStatus } from '../../types';
+
+interface AudioInsightsProps {
+  status: PlaybackStatus;
+}
 
 const METRICS = ['Overall', 'Bass', 'Mid', 'Treble'];
 
-export function AudioInsights() {
+export function AudioInsights({ status }: AudioInsightsProps) {
   return (
     <section className="panel panel-solid studio-insights" aria-labelledby="insights-title">
       <div className="panel-header">
@@ -15,7 +20,10 @@ export function AudioInsights() {
       <div className="panel-body insights-body">
         <div className="insight-status">
           <span className="label">Playback status</span>
-          <span className="chip">Empty</span>
+          <span className="chip">
+            <span className="chip-dot" />
+            {status}
+          </span>
         </div>
         <div className="insight-meters">
           {METRICS.map((metric) => (

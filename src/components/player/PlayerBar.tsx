@@ -8,9 +8,9 @@ interface PlayerBarProps {
 }
 
 export function PlayerBar({ player, hasTrack }: PlayerBarProps) {
-  const { duration, currentTime, isPlaying, status, toggle, seek } = player;
+  const { duration, currentTime, isPlaying, isLoading, status, toggle, seek } = player;
   const disabled = !hasTrack || duration <= 0;
-  const loading = status === 'loading';
+  const loading = isLoading || status === 'loading';
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (

@@ -1,12 +1,13 @@
 import { Maximize2, RotateCcw } from 'lucide-react';
 import { getMode } from '../../data/visualizers';
-import type { VisualizerConfig } from '../../types';
+import type { PlaybackStatus, VisualizerConfig } from '../../types';
 
 interface VisualizerStageProps {
   config: VisualizerConfig;
+  status: PlaybackStatus;
 }
 
-export function VisualizerStage({ config }: VisualizerStageProps) {
+export function VisualizerStage({ config, status }: VisualizerStageProps) {
   const mode = getMode(config.mode);
 
   return (
@@ -37,7 +38,7 @@ export function VisualizerStage({ config }: VisualizerStageProps) {
       <div className="stage-footer">
         <span className="chip">
           <span className="chip-dot" />
-          Idle
+          {status === 'playing' ? 'Live signal' : status}
         </span>
         <span className="mono stage-hint">Load audio to activate the visualizer</span>
       </div>

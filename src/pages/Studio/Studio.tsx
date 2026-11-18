@@ -72,8 +72,8 @@ export default function Studio() {
             onRemove={handleRemove}
             onDismissError={() => setError(null)}
           />
-          <VisualizerStage config={config} />
-          <AudioInsights />
+          <VisualizerStage config={config} status={player.status} />
+          <AudioInsights status={player.status} />
           <PlayerBar player={player} hasTrack={Boolean(track)} />
         </div>
         <div className="drop-overlay" aria-hidden={!isDragging}>
@@ -89,7 +89,11 @@ export default function Studio() {
         ref={player.audioRef}
         preload="metadata"
         onLoadedMetadata={player.handleLoadedMetadata}
+        onDurationChange={player.handleDurationChange}
         onTimeUpdate={player.handleTimeUpdate}
+        onSeeked={player.handleSeeked}
+        onWaiting={player.handleWaiting}
+        onPlaying={player.handlePlaying}
         onPlay={player.handlePlay}
         onPause={player.handlePause}
         onEnded={player.handleEnded}

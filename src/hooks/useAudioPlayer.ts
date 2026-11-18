@@ -12,6 +12,7 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setPlaying] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [status, setStatus] = useState<PlaybackStatus>(src ? 'loading' : 'empty');
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
       setDuration(0);
       setCurrentTime(0);
       setPlaying(false);
+      setLoading(false);
       setStatus('empty');
       return;
     }
@@ -33,24 +35,43 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
     setDuration(0);
     setCurrentTime(0);
     setPlaying(false);
+    setLoading(true);
     setStatus('loading');
   }, [src]);
 
   const handleLoadedMetadata = useCallback(() => {
     const value = audioRef.current?.duration;
-    const safeDuration = Number.isFinite(value) ? value as number : 0;
+    const safeDuration = Number.isFinite(value) ? (value as number) : 0;
     setDuration(safeDuration);
+    setLoading(false);
     setStatus('ready');
     onMetadata?.(safeDuration);
   }, [onMetadata]);
+
+  const handleDurationChange = useCallback(() => {
+    const value = audioRef.current?.duration;
+    if (Number.isFinite(value)) setDuration(value as number);
+  }, []);
 
   const handleTimeUpdate = useCallback(() => {
     const element = audioRef.current;
     if (element) setCurrentTime(element.currentTime);
   }, []);
 
+  const handleSeeked = useCallback(() => {
+    const element = audioRef.current;
+    if (element) {
+      setCurrentTime(element.currentTime);
+      setLoading(false);
+    }
+  }, []);
+
+  const handleWaiting = useCallback(() => setLoading(true), []);
+  const handlePlaying = useCallback(() => setLoading(false), []);
+
   const handlePlay = useCallback(() => {
     setPlaying(true);
+    setLoading(false);
     setStatus('playing');
   }, []);
 
@@ -81,7 +102,8 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
   const seek = useCallback((seconds: number) => {
     const element = audioRef.current;
     if (!element || !Number.isFinite(seconds)) return;
-    const target = Math.max(0, Math.min(seconds, Number.isFinite(element.duration) ? element.duration : 0));
+    const limit = Number.isFinite(element.duration) ? element.duration : 0;
+    const target = Math.max(0, Math.min(seconds, limit));
     element.currentTime = target;
     setCurrentTime(target);
   }, []);
@@ -91,12 +113,17 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
     duration,
     currentTime,
     isPlaying,
+    isLoading,
     status,
     setStatus,
     toggle,
     seek,
     handleLoadedMetadata,
+    handleDurationChange,
     handleTimeUpdate,
+    handleSeeked,
+    handleWaiting,
+    handlePlaying,
     handlePlay,
     handlePause,
     handleEnded,
