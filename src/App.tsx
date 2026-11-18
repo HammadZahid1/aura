@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { AppShell } from './components/layout/AppShell';
+import { TopNav } from './components/navigation/TopNav';
 import { useHashRoute } from './hooks/useHashRoute';
 import type { PageProps, Route } from './types';
 import Home from './pages/Home/Home';
@@ -21,7 +22,7 @@ export default function App() {
   const Page = PAGES[route];
 
   return (
-    <AppShell header={<div className="brand">AURA</div>}>
+    <AppShell header={<TopNav route={route} onNavigate={navigate} />}>
       <Page onNavigate={navigate} />
     </AppShell>
   );
