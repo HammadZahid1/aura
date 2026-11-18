@@ -1,17 +1,20 @@
 import { Maximize2, RotateCcw } from 'lucide-react';
 import { getMode } from '../../data/visualizers';
 import type { AudioEngine } from '../../lib/audio/AudioEngine';
-import type { PlaybackStatus, VisualizerConfig } from '../../types';
+import { VisualizerCanvas } from '../visualizers/VisualizerCanvas';
+import type { FrequencyBands, PlaybackStatus, VisualizerConfig } from '../../types';
 
 interface VisualizerStageProps {
   config: VisualizerConfig;
   status: PlaybackStatus;
   engineReady: boolean;
   engine: AudioEngine;
+  onFrame?: (bands: FrequencyBands, level: number) => void;
 }
 
-export function VisualizerStage({ config, status, engineReady, engine }: VisualizerStageProps) {
+export function VisualizerStage({ config, status, engineReady, engine, onFrame }: VisualizerStageProps) {
   const mode = getMode(config.mode);
+  const active = status === 'playing';
 
   return (
     <section className="panel panel-solid studio-stage" aria-labelledby="stage-title">
@@ -34,16 +37,12 @@ export function VisualizerStage({ config, status, engineReady, engine }: Visuali
         </div>
       </div>
       <div className="stage-canvas-wrap">
-        <div className="stage-placeholder" role="img" aria-label="Visualization stage, waiting for audio">
-          <span className="stage-placeholder-ring" />
-          <span className="stage-placeholder-ring stage-placeholder-ring-2" />
-          <span className="stage-placeholder-label mono">Awaiting signal</span>
-        </div>
+        <VisualizerCanvas engine={engine} config={config} active={active} onFrame={onFrame} />
       </div>
       <div className="stage-footer">
         <span className="chip">
           <span className="chip-dot" />
-          {status === 'playing' ? 'Live signal' : status}
+          {active ? 'Live signal' : status}
         </span>
         <span className="mono stage-hint">
           {engineReady ? 'Analysis graph connected' : 'Load audio to activate the visualizer'}
