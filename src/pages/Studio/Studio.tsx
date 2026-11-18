@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { UploadCloud } from 'lucide-react';
 import { AudioLibrary } from '../../components/studio/AudioLibrary';
 import { VisualizerStage } from '../../components/studio/VisualizerStage';
 import { AudioInsights } from '../../components/insights/AudioInsights';
 import { PlayerBar } from '../../components/player/PlayerBar';
+import { useAudioDrop } from '../../hooks/useAudioDrop';
 import { DEFAULT_CONFIG } from '../../data/visualizers';
+import { cn } from '../../lib/utilities/cn';
 import type { AudioTrack, PlaybackStatus, VisualizerConfig } from '../../types';
 
 export default function Studio() {
@@ -30,6 +33,8 @@ export default function Studio() {
     setTrack(null);
   };
 
+  const { isDragging, dropHandlers } = useAudioDrop(handleFile);
+
   return (
     <div className="page studio-page container">
       <div className="studio-heading">
@@ -43,11 +48,20 @@ export default function Studio() {
         </span>
       </div>
 
-      <div className="studio-grid">
-        <AudioLibrary track={track} onFile={handleFile} onRemove={handleRemove} />
-        <VisualizerStage config={config} />
-        <AudioInsights />
-        <PlayerBar />
+      <div className={cn('studio-grid-wrap', isDragging && 'is-dragging')} {...dropHandlers}>
+        <div className="studio-grid">
+          <AudioLibrary track={track} onFile={handleFile} onRemove={handleRemove} />
+          <VisualizerStage config={config} />
+          <AudioInsights />
+          <PlayerBar />
+        </div>
+        <div className="drop-overlay" aria-hidden={!isDragging}>
+          <div className="drop-overlay-inner">
+            <UploadCloud size={30} strokeWidth={1.4} aria-hidden="true" />
+            <strong>Drop to load audio</strong>
+            <span>Your file stays on this device</span>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1137,6 +1137,54 @@ input[type='range']::-moz-range-thumb {
   margin: 12px 0 0;
 }
 
+.studio-grid-wrap {
+  position: relative;
+  border-radius: var(--radius);
+}
+
+.studio-grid-wrap.is-dragging .studio-grid {
+  opacity: 0.3;
+}
+
+.drop-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  border: 1px dashed color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: var(--radius);
+  background: rgba(5, 6, 8, 0.82);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 160ms var(--ease), visibility 160ms;
+  pointer-events: none;
+}
+
+.drop-overlay[aria-hidden='false'] {
+  opacity: 1;
+  visibility: visible;
+}
+
+.drop-overlay-inner {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  color: var(--accent);
+}
+
+.drop-overlay-inner strong {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.drop-overlay-inner span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .studio-grid {
   display: grid;
   grid-template-columns: 288px minmax(0, 1fr) 268px;
