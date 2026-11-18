@@ -13,6 +13,8 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setPlaying] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [volume, setVolumeState] = useState(0.8);
+  const [muted, setMuted] = useState(false);
   const [status, setStatus] = useState<PlaybackStatus>(src ? 'loading' : 'empty');
 
   useEffect(() => {
@@ -38,6 +40,38 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
     setLoading(true);
     setStatus('loading');
   }, [src]);
+
+  useEffect(() => {
+    const element = audioRef.current;
+    if (!element) return;
+    element.volume = volume;
+    element.muted = muted;
+  }, [volume, muted]);
+
+  const handleVolumeChange = useCallback(() => {
+    const element = audioRef.current;
+    if (!element) return;
+    setVolumeState(element.volume);
+    setMuted(element.muted);
+  }, []);
+
+  const changeVolume = useCallback((value: number) => {
+    const element = audioRef.current;
+    const next = Math.max(0, Math.min(1, value));
+    setVolumeState(next);
+    if (element) {
+      element.volume = next;
+      element.muted = false;
+    }
+    setMuted(false);
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    const element = audioRef.current;
+    const next = !muted;
+    setMuted(next);
+    if (element) element.muted = next;
+  }, [muted]);
 
   const handleLoadedMetadata = useCallback(() => {
     const value = audioRef.current?.duration;
@@ -114,10 +148,15 @@ export function useAudioPlayer({ src, onMetadata }: UseAudioPlayerOptions) {
     currentTime,
     isPlaying,
     isLoading,
+    volume,
+    muted,
     status,
     setStatus,
     toggle,
     seek,
+    changeVolume,
+    toggleMute,
+    handleVolumeChange,
     handleLoadedMetadata,
     handleDurationChange,
     handleTimeUpdate,

@@ -94,6 +94,7 @@ export default function Studio() {
         onSeeked={player.handleSeeked}
         onWaiting={player.handleWaiting}
         onPlaying={player.handlePlaying}
+        onVolumeChange={player.handleVolumeChange}
         onPlay={player.handlePlay}
         onPause={player.handlePause}
         onEnded={player.handleEnded}

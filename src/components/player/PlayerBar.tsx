@@ -1,4 +1,4 @@
-import { LoaderCircle, Pause, Play, RotateCcw } from 'lucide-react';
+import { LoaderCircle, Pause, Play, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { formatTime } from '../../lib/audio/formatTime';
 import type { AudioPlayerApi } from '../../hooks/useAudioPlayer';
 
@@ -8,7 +8,7 @@ interface PlayerBarProps {
 }
 
 export function PlayerBar({ player, hasTrack }: PlayerBarProps) {
-  const { duration, currentTime, isPlaying, isLoading, status, toggle, seek } = player;
+  const { duration, currentTime, isPlaying, isLoading, volume, muted, status, toggle, seek, changeVolume, toggleMute } = player;
   const disabled = !hasTrack || duration <= 0;
   const loading = isLoading || status === 'loading';
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -59,6 +59,34 @@ export function PlayerBar({ player, hasTrack }: PlayerBarProps) {
         />
 
         <span className="mono player-time player-duration">{formatTime(duration)}</span>
+
+        <div className="player-volume-group">
+          <button
+            className="icon-button"
+            onClick={toggleMute}
+            disabled={!hasTrack}
+            aria-label={muted ? 'Unmute audio' : 'Mute audio'}
+            title={muted ? 'Unmute' : 'Mute'}
+          >
+            {muted || volume === 0 ? (
+              <VolumeX size={16} strokeWidth={1.7} aria-hidden="true" />
+            ) : (
+              <Volume2 size={16} strokeWidth={1.7} aria-hidden="true" />
+            )}
+          </button>
+          <input
+            className="player-volume"
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={muted ? 0 : volume}
+            disabled={!hasTrack}
+            aria-label="Volume"
+            style={{ '--range-fill': `${(muted ? 0 : volume) * 100}%` } as React.CSSProperties}
+            onChange={(event) => changeVolume(Number(event.target.value))}
+          />
+        </div>
       </div>
     </section>
   );

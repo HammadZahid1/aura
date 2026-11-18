@@ -1589,6 +1589,19 @@ input[type='range']::-moz-range-thumb {
   min-width: 60px;
 }
 
+.player-volume-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 14px;
+  border-left: 1px solid var(--border);
+}
+
+.player-volume {
+  width: 82px;
+  flex: 0 0 auto;
+}
+
 .player-duration {
   color: var(--muted-deep);
 }
