@@ -1,4 +1,5 @@
 import { FFT_SIZE, MAX_DECIBELS, MIN_DECIBELS, SMOOTHING_TIME_CONSTANT } from './audioConfig';
+import { calculateBassActivity } from './bands';
 
 /**
  * Owns the browser's audio analysis graph.
@@ -107,6 +108,11 @@ export class AudioEngine {
     if (!this.analyser) return this.timeBuffer;
     this.analyser.getByteTimeDomainData(this.timeBuffer);
     return this.timeBuffer;
+  }
+
+  /** Relative bass activity from the most recently read frequency buffer. */
+  get bass(): number {
+    return calculateBassActivity(this.frequencyBuffer, this.sampleRate, FFT_SIZE);
   }
 
   /** Root-mean-square level of the most recently read waveform buffer, normalised to 0..1. */
