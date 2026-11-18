@@ -1,5 +1,11 @@
 import { FFT_SIZE, MAX_DECIBELS, MIN_DECIBELS, SMOOTHING_TIME_CONSTANT } from './audioConfig';
-import { calculateBassActivity, calculateMidActivity } from './bands';
+import {
+  calculateBands,
+  calculateBassActivity,
+  calculateMidActivity,
+  calculateTrebleActivity,
+} from './bands';
+import type { AudioFrame } from '../../types';
 
 /**
  * Owns the browser's audio analysis graph.
@@ -16,6 +22,13 @@ export class AudioEngine {
   private element: HTMLAudioElement | null = null;
   private frequencyBuffer: Uint8Array = new Uint8Array(0);
   private timeBuffer: Uint8Array = new Uint8Array(0);
+  private frame: AudioFrame = {
+    frequency: new Uint8Array(0),
+    waveform: new Uint8Array(0),
+    bands: { bass: 0, mid: 0, treble: 0, overall: 0 },
+    level: 0,
+    active: false,
+  };
 
   /** Bind the persistent media element. Calling with the same element is a no-op. */
   attach(element: HTMLAudioElement): void {
@@ -110,9 +123,29 @@ export class AudioEngine {
     return this.timeBuffer;
   }
 
+  /**
+   * Read one complete analysis frame. The typed arrays and frame object are reused
+   * between calls so the animation loop does not allocate every frame.
+   */
+  readFrame(active: boolean): AudioFrame {
+    const frequency = this.readFrequency();
+    const waveform = this.readWaveform();
+    this.frame.frequency = frequency;
+    this.frame.waveform = waveform;
+    this.frame.bands = calculateBands(frequency, this.sampleRate, FFT_SIZE);
+    this.frame.level = this.level;
+    this.frame.active = active;
+    return this.frame;
+  }
+
   /** Relative bass activity from the most recently read frequency buffer. */
   get bass(): number {
     return calculateBassActivity(this.frequencyBuffer, this.sampleRate, FFT_SIZE);
+  }
+
+  /** Relative treble activity from the most recently read frequency buffer. */
+  get treble(): number {
+    return calculateTrebleActivity(this.frequencyBuffer, this.sampleRate, FFT_SIZE);
   }
 
   /** Relative mid-frequency activity from the most recently read frequency buffer. */
