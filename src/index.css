@@ -1315,6 +1315,40 @@ input[type='range']::-moz-range-thumb {
   font-size: 10px;
 }
 
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.metadata-grid > div {
+  min-width: 0;
+  padding: 10px 12px;
+  background: rgba(9, 13, 19, 0.82);
+}
+
+.metadata-grid dt {
+  color: var(--muted-deep);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.metadata-grid dd {
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .loaded-actions {
   display: flex;
   align-items: center;

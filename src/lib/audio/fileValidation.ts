@@ -12,6 +12,14 @@ export function getExtension(name: string): string {
   return lastDot === -1 ? '' : name.slice(lastDot + 1).toLowerCase();
 }
 
+/** Short, human-readable format label for the metadata panel. */
+export function describeAudioType(name: string, type: string): string {
+  const extension = getExtension(name);
+  if (extension) return extension.toUpperCase();
+  if (type.startsWith('audio/')) return type.slice(6).toUpperCase();
+  return 'AUDIO';
+}
+
 /**
  * Validate an audio file before it is handed to the browser's media element.
  * Deliberately permissive: some browsers report empty MIME types for valid files.

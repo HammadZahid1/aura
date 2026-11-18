@@ -1,6 +1,7 @@
 import { AlertCircle, FileAudio2, Trash2, Upload, X } from 'lucide-react';
 import { UploadZone } from './UploadZone';
-import { formatBytes } from '../../lib/audio/formatTime';
+import { formatBytes, formatTime } from '../../lib/audio/formatTime';
+import { describeAudioType } from '../../lib/audio/fileValidation';
 import type { AudioTrack } from '../../types';
 
 interface AudioLibraryProps {
@@ -42,6 +43,26 @@ export function AudioLibrary({ track, error, onFile, onRemove, onDismissError }:
                 <span className="mono">{formatBytes(track.size)}</span>
               </div>
             </div>
+
+            <dl className="metadata-grid">
+              <div>
+                <dt>Format</dt>
+                <dd className="mono">{describeAudioType(track.name, track.type)}</dd>
+              </div>
+              <div>
+                <dt>Duration</dt>
+                <dd className="mono">{track.duration > 0 ? formatTime(track.duration) : '—'}</dd>
+              </div>
+              <div>
+                <dt>Size</dt>
+                <dd className="mono">{formatBytes(track.size)}</dd>
+              </div>
+              <div>
+                <dt>Source</dt>
+                <dd className="mono">Local file</dd>
+              </div>
+            </dl>
+
             <div className="loaded-actions">
               <label className="btn btn-accent replace-button">
                 <Upload size={14} strokeWidth={1.8} aria-hidden="true" />

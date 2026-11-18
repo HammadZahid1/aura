@@ -1,22 +1,27 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { UploadCloud } from 'lucide-react';
 import { AudioLibrary } from '../../components/studio/AudioLibrary';
 import { VisualizerStage } from '../../components/studio/VisualizerStage';
 import { AudioInsights } from '../../components/insights/AudioInsights';
 import { PlayerBar } from '../../components/player/PlayerBar';
 import { useAudioDrop } from '../../hooks/useAudioDrop';
+import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { DEFAULT_CONFIG } from '../../data/visualizers';
 import { validateAudioFile } from '../../lib/audio/fileValidation';
 import { cn } from '../../lib/utilities/cn';
-import type { AudioTrack, PlaybackStatus, VisualizerConfig } from '../../types';
+import type { AudioTrack, VisualizerConfig } from '../../types';
 
 export default function Studio() {
   const [config] = useState<VisualizerConfig>(DEFAULT_CONFIG);
-  const [status] = useState<PlaybackStatus>('empty');
   const [track, setTrack] = useState<AudioTrack | null>(null);
   const [error, setError] = useState<string | null>(null);
   const objectUrlRef = useRef<string | null>(null);
-  const statusLabel = useMemo(() => status.toUpperCase(), [status]);
+
+  const handleMetadata = useCallback((duration: number) => {
+    setTrack((current) => (current ? { ...current, duration } : current));
+  }, []);
+
+  const player = useAudioPlayer({ src: track?.url ?? null, onMetadata: handleMetadata });
 
   useEffect(() => () => {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
@@ -54,7 +59,7 @@ export default function Studio() {
         </div>
         <span className="chip">
           <span className="chip-dot" />
-          {statusLabel}
+          {player.status.toUpperCase()}
         </span>
       </div>
 
@@ -79,6 +84,13 @@ export default function Studio() {
           </div>
         </div>
       </div>
+
+      <audio
+        ref={player.audioRef}
+        preload="metadata"
+        onLoadedMetadata={player.handleLoadedMetadata}
+        className="visually-hidden"
+      />
     </div>
   );
 }
