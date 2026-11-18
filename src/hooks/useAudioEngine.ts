@@ -25,6 +25,7 @@ export function useAudioEngine(audioRef: RefObject<HTMLAudioElement | null>, act
 
   useEffect(() => {
     if (!active) {
+      void engine.suspend();
       setReady(false);
       return;
     }

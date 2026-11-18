@@ -1,8 +1,8 @@
 import { FFT_SIZE, MAX_DECIBELS, MIN_DECIBELS, SMOOTHING_TIME_CONSTANT } from './audioConfig';
 import {
-  calculateBands,
   calculateBassActivity,
   calculateMidActivity,
+  calculateOverallActivity,
   calculateTrebleActivity,
 } from './bands';
 import type { AudioFrame } from '../../types';
@@ -20,6 +20,7 @@ export class AudioEngine {
   private analyser: AnalyserNode | null = null;
   private output: GainNode | null = null;
   private element: HTMLAudioElement | null = null;
+  private activation: Promise<boolean> | null = null;
   private frequencyBuffer: Uint8Array = new Uint8Array(0);
   private timeBuffer: Uint8Array = new Uint8Array(0);
   private frame: AudioFrame = {
@@ -37,10 +38,19 @@ export class AudioEngine {
     this.element = element;
   }
 
-  /** Create (or resume) the audio graph. Must be triggered by a user interaction. */
-  async activate(): Promise<boolean> {
-    if (!this.element) return false;
+  /** Create (or resume) the audio graph. Concurrent calls share one activation. */
+  activate(): Promise<boolean> {
+    if (!this.element) return Promise.resolve(false);
+    if (this.activation) return this.activation;
 
+    this.activation = this.performActivation().then((ready) => {
+      this.activation = null;
+      return ready;
+    });
+    return this.activation;
+  }
+
+  private async performActivation(): Promise<boolean> {
     if (!this.context) {
       const AudioContextCtor =
         window.AudioContext ??
@@ -49,7 +59,7 @@ export class AudioEngine {
 
       try {
         const context = new AudioContextCtor();
-        const source = context.createMediaElementSource(this.element);
+        const source = context.createMediaElementSource(this.element as HTMLAudioElement);
         const analyser = context.createAnalyser();
         analyser.fftSize = FFT_SIZE;
         analyser.smoothingTimeConstant = SMOOTHING_TIME_CONSTANT;
@@ -83,6 +93,17 @@ export class AudioEngine {
     return this.context.state === 'running';
   }
 
+  /** Suspend an idle context to avoid unnecessary audio-thread work. */
+  async suspend(): Promise<void> {
+    if (this.context?.state === 'running') {
+      try {
+        await this.context.suspend();
+      } catch {
+        // A suspended or closing context needs no further action.
+      }
+    }
+  }
+
   get isReady(): boolean {
     return this.context !== null && this.context.state === 'running';
   }
@@ -114,41 +135,39 @@ export class AudioEngine {
     return this.frequencyBuffer;
   }
 
-  /**
-   * Fill and return the shared time-domain buffer. Values around 128 represent silence.
-   */
+  /** Fill and return the shared time-domain buffer. Values around 128 represent silence. */
   readWaveform(): Uint8Array {
     if (!this.analyser) return this.timeBuffer;
     this.analyser.getByteTimeDomainData(this.timeBuffer);
     return this.timeBuffer;
   }
 
-  /**
-   * Read one complete analysis frame. The typed arrays and frame object are reused
-   * between calls so the animation loop does not allocate every frame.
-   */
+  /** Read one complete frame, reusing the typed arrays and band object between calls. */
   readFrame(active: boolean): AudioFrame {
     const frequency = this.readFrequency();
     const waveform = this.readWaveform();
+    const sampleRate = this.sampleRate;
+    const frameBands = this.frame.bands;
+    frameBands.bass = calculateBassActivity(frequency, sampleRate, FFT_SIZE);
+    frameBands.mid = calculateMidActivity(frequency, sampleRate, FFT_SIZE);
+    frameBands.treble = calculateTrebleActivity(frequency, sampleRate, FFT_SIZE);
+    frameBands.overall = calculateOverallActivity(frequency);
+
     this.frame.frequency = frequency;
     this.frame.waveform = waveform;
-    this.frame.bands = calculateBands(frequency, this.sampleRate, FFT_SIZE);
     this.frame.level = this.level;
     this.frame.active = active;
     return this.frame;
   }
 
-  /** Relative bass activity from the most recently read frequency buffer. */
   get bass(): number {
     return calculateBassActivity(this.frequencyBuffer, this.sampleRate, FFT_SIZE);
   }
 
-  /** Relative treble activity from the most recently read frequency buffer. */
   get treble(): number {
     return calculateTrebleActivity(this.frequencyBuffer, this.sampleRate, FFT_SIZE);
   }
 
-  /** Relative mid-frequency activity from the most recently read frequency buffer. */
   get mid(): number {
     return calculateMidActivity(this.frequencyBuffer, this.sampleRate, FFT_SIZE);
   }
@@ -179,6 +198,7 @@ export class AudioEngine {
     this.analyser = null;
     this.output = null;
     this.context = null;
+    this.activation = null;
     this.frequencyBuffer = new Uint8Array(0);
     this.timeBuffer = new Uint8Array(0);
     this.element = null;
