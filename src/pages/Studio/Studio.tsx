@@ -12,7 +12,7 @@ import { useAudioEngine } from '../../hooks/useAudioEngine';
 import { DEFAULT_CONFIG, MODE_IDS } from '../../data/visualizers';
 import { validateAudioFile } from '../../lib/audio/fileValidation';
 import { cn } from '../../lib/utilities/cn';
-import type { AudioTrack, VisualizerConfig } from '../../types';
+import type { AudioSnapshot, AudioTrack, VisualizerConfig } from '../../types';
 
 export default function Studio() {
   const { theme, setTheme } = useTheme();
@@ -25,6 +25,7 @@ export default function Studio() {
   };
   const [track, setTrack] = useState<AudioTrack | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [insight, setInsight] = useState<AudioSnapshot | null>(null);
   const objectUrlRef = useRef<string | null>(null);
 
   const handleMetadata = useCallback((duration: number) => {
@@ -50,6 +51,7 @@ export default function Studio() {
     const url = URL.createObjectURL(file);
     objectUrlRef.current = url;
     setTrack({ name: file.name, size: file.size, type: file.type, duration: 0, url });
+    setInsight(null);
   };
 
   const handleRemove = () => {
@@ -57,6 +59,7 @@ export default function Studio() {
     objectUrlRef.current = null;
     setTrack(null);
     setError(null);
+    setInsight(null);
   };
 
   const { isDragging, dropHandlers } = useAudioDrop(handleFile);
@@ -107,6 +110,7 @@ export default function Studio() {
             status={player.status}
             engineReady={engineReady}
             engine={engine}
+            onFrame={setInsight}
             onModeChange={(mode) => updateConfig({ mode })}
             onReset={() => {
               setBaseConfig(DEFAULT_CONFIG);
@@ -114,7 +118,7 @@ export default function Studio() {
             }}
             onFullscreen={requestFullscreen}
           />
-          <AudioInsights status={player.status} />
+          <AudioInsights status={player.status} snapshot={insight} theme={theme} />
           <VisualizerControls config={config} onChange={updateConfig} />
           <PlayerBar player={player} hasTrack={Boolean(track)} />
         </div>

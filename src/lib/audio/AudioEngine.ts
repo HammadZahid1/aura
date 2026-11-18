@@ -28,6 +28,7 @@ export class AudioEngine {
     waveform: new Uint8Array(0),
     bands: { bass: 0, mid: 0, treble: 0, overall: 0 },
     level: 0,
+    peak: 0,
     active: false,
   };
 
@@ -153,9 +154,11 @@ export class AudioEngine {
     frameBands.treble = calculateTrebleActivity(frequency, sampleRate, FFT_SIZE);
     frameBands.overall = calculateOverallActivity(frequency);
 
+    const level = this.level;
     this.frame.frequency = frequency;
     this.frame.waveform = waveform;
-    this.frame.level = this.level;
+    this.frame.level = level;
+    this.frame.peak = active ? Math.max(level, this.frame.peak * 0.96) : 0;
     this.frame.active = active;
     return this.frame;
   }

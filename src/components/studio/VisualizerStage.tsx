@@ -3,14 +3,14 @@ import { getMode } from '../../data/visualizers';
 import type { AudioEngine } from '../../lib/audio/AudioEngine';
 import { VisualizerCanvas } from '../visualizers/VisualizerCanvas';
 import { ModeSwitcher } from './ModeSwitcher';
-import type { FrequencyBands, PlaybackStatus, VisualizerConfig, VisualizationMode } from '../../types';
+import type { AudioSnapshot, PlaybackStatus, VisualizerConfig, VisualizationMode } from '../../types';
 
 interface VisualizerStageProps {
   config: VisualizerConfig;
   status: PlaybackStatus;
   engineReady: boolean;
   engine: AudioEngine;
-  onFrame?: (bands: FrequencyBands, level: number) => void;
+  onFrame?: (snapshot: AudioSnapshot) => void;
   onModeChange: (mode: VisualizationMode) => void;
   onReset: () => void;
   onFullscreen: () => void;

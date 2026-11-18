@@ -5,13 +5,14 @@ import { drawStageBackground } from '../../lib/visualization/shared';
 import { getRenderer, type RenderParams } from '../../lib/visualization/renderer';
 import '../../lib/visualization/renderers';
 import type { AudioEngine } from '../../lib/audio/AudioEngine';
-import type { FrequencyBands, VisualizerConfig } from '../../types';
+import { sampleFrequencySpectrum } from '../../lib/audio/spectrum';
+import type { AudioSnapshot, VisualizerConfig } from '../../types';
 
 interface VisualizerCanvasProps {
   engine: AudioEngine;
   config: VisualizerConfig;
   active: boolean;
-  onFrame?: (bands: FrequencyBands, level: number) => void;
+  onFrame?: (snapshot: AudioSnapshot) => void;
 }
 
 export function VisualizerCanvas({ engine, config, active, onFrame }: VisualizerCanvasProps) {
@@ -62,7 +63,13 @@ export function VisualizerCanvas({ engine, config, active, onFrame }: Visualizer
 
         const callback = onFrameRef.current;
         if (callback && timestamp - lastInsight > 110) {
-          callback(params.frame.bands, params.frame.level);
+          callback({
+            bands: { ...params.frame.bands },
+            level: params.frame.level,
+            peak: params.frame.peak,
+            active: params.frame.active,
+            spectrum: sampleFrequencySpectrum(params.frame.frequency),
+          });
           lastInsight = timestamp;
         }
       }

@@ -34,7 +34,20 @@ export interface AudioFrame {
   waveform: Uint8Array;
   bands: FrequencyBands;
   level: number;
+  peak: number;
   active: boolean;
+}
+
+/**
+ * Immutable snapshot of the analysis values needed by UI panels.
+ * Created from an AudioFrame so React never renders from reused typed arrays.
+ */
+export interface AudioSnapshot {
+  bands: FrequencyBands;
+  level: number;
+  peak: number;
+  active: boolean;
+  spectrum: number[];
 }
 
 export interface VisualizerConfig {
