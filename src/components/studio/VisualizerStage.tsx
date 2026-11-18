@@ -59,13 +59,20 @@ export function VisualizerStage({
           </h2>
         </div>
         <div className="stage-actions">
-          <button className="icon-button" onClick={onReset} aria-label="Reset visualization" title="Reset view">
+          <button
+            className="icon-button"
+            onClick={onReset}
+            aria-label="Reset visualization"
+            aria-keyshortcuts="R"
+            title="Reset view (R)"
+          >
             <RotateCcw size={16} strokeWidth={1.8} aria-hidden="true" />
           </button>
           <button
             className="icon-button"
             onClick={onFullscreen}
             aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            aria-keyshortcuts="F"
             title={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
           >
             {isFullscreen ? (
@@ -92,6 +99,7 @@ export function VisualizerStage({
         </span>
         <span className="mono stage-hint">
           {engineReady ? 'Analysis graph connected' : 'Load audio to activate the visualizer'}
+          <span className="stage-shortcuts"> · 1–5 modes · Space play · F fullscreen · R reset</span>
         </span>
       </div>
 

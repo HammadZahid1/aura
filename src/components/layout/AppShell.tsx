@@ -10,6 +10,7 @@ interface AppShellProps {
 export function AppShell({ children, header, immersive = false }: AppShellProps) {
   return (
     <div className="aura-root">
+      <a className="skip-link" href="#main-content">Skip to content</a>
       {!immersive && <header className="app-header">{header}</header>}
       <main id="main-content" className="app-main">
         {children}

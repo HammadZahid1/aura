@@ -14,6 +14,7 @@ import { useAudioEngine } from '../../hooks/useAudioEngine';
 import { DEFAULT_CONFIG, MODE_IDS } from '../../data/visualizers';
 import { validateAudioFile } from '../../lib/audio/fileValidation';
 import { cn } from '../../lib/utilities/cn';
+import { isInteractiveTarget } from '../../lib/utilities/keyboard';
 import type { AudioSnapshot, AudioTrack, VisualizerConfig } from '../../types';
 
 export default function Studio() {
@@ -36,6 +37,7 @@ export default function Studio() {
   }, []);
 
   const player = useAudioPlayer({ src: track?.url ?? null, onMetadata: handleMetadata });
+  const { toggle: togglePlayback } = player;
   const { engine, isReady: engineReady } = useAudioEngine(player.audioRef, player.isPlaying);
   const stageRef = useRef<HTMLElement>(null);
   const {
@@ -72,14 +74,31 @@ export default function Studio() {
 
   const { isDragging, dropHandlers } = useAudioDrop(handleFile);
 
+  const resetControls = useCallback(() => {
+    resetPreferences();
+    setTheme('cyan');
+    setBaseConfig({ ...DEFAULT_CONFIG, theme: 'cyan' });
+  }, [resetPreferences, setTheme]);
+
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      if (isInteractiveTarget(event.target)) return;
       if (event.altKey || event.ctrlKey || event.metaKey) return;
-      if (event.key.toLowerCase() === 'f') {
+
+      const key = event.key.toLowerCase();
+      if (key === 'f') {
         event.preventDefault();
         toggleFullscreen();
+        return;
+      }
+      if (key === 'r') {
+        event.preventDefault();
+        resetControls();
+        return;
+      }
+      if (event.code === 'Space') {
+        event.preventDefault();
+        void togglePlayback();
         return;
       }
       const index = Number(event.key) - 1;
@@ -89,7 +108,7 @@ export default function Studio() {
     };
     window.addEventListener('keydown', handleShortcut);
     return () => window.removeEventListener('keydown', handleShortcut);
-  }, [toggleFullscreen]);
+  }, [toggleFullscreen, resetControls, togglePlayback]);
 
   return (
     <div className="page studio-page container">
@@ -125,11 +144,7 @@ export default function Studio() {
             hasTrack={Boolean(track)}
             onFrame={setInsight}
             onModeChange={(mode) => updateConfig({ mode })}
-            onReset={() => {
-              resetPreferences();
-              setTheme('cyan');
-              setBaseConfig({ ...DEFAULT_CONFIG, theme: 'cyan' });
-            }}
+            onReset={resetControls}
             onFullscreen={toggleFullscreen}
           />
           <AudioInsights status={player.status} snapshot={insight} theme={theme} />

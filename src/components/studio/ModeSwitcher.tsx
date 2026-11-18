@@ -28,6 +28,7 @@ export function ModeSwitcher({ mode, onChange }: ModeSwitcherProps) {
             key={item.id}
             className={cn('mode-button', active && 'is-active')}
             aria-pressed={active}
+            aria-keyshortcuts={String(index + 1)}
             title={`${item.label} (${index + 1}) — ${item.description}`}
             onClick={() => onChange(item.id)}
           >
