@@ -7,6 +7,7 @@ import { VisualizerControls } from '../../components/controls/VisualizerControls
 import { PlayerBar } from '../../components/player/PlayerBar';
 import { useAudioDrop } from '../../hooks/useAudioDrop';
 import { useTheme } from '../../hooks/useTheme';
+import { usePreferences } from '../../hooks/usePreferences';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useAudioEngine } from '../../hooks/useAudioEngine';
 import { DEFAULT_CONFIG, MODE_IDS } from '../../data/visualizers';
@@ -16,7 +17,8 @@ import type { AudioSnapshot, AudioTrack, VisualizerConfig } from '../../types';
 
 export default function Studio() {
   const { theme, setTheme } = useTheme();
-  const [baseConfig, setBaseConfig] = useState<VisualizerConfig>(DEFAULT_CONFIG);
+  const { preferences, resetPreferences } = usePreferences();
+  const [baseConfig, setBaseConfig] = useState<VisualizerConfig>(() => ({ ...preferences, theme }));
   const config: VisualizerConfig = { ...baseConfig, theme };
 
   const updateConfig = (patch: Partial<VisualizerConfig>) => {
@@ -113,8 +115,9 @@ export default function Studio() {
             onFrame={setInsight}
             onModeChange={(mode) => updateConfig({ mode })}
             onReset={() => {
-              setBaseConfig(DEFAULT_CONFIG);
+              resetPreferences();
               setTheme('cyan');
+              setBaseConfig({ ...DEFAULT_CONFIG, theme: 'cyan' });
             }}
             onFullscreen={requestFullscreen}
           />

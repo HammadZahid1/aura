@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import { AppShell } from './components/layout/AppShell';
 import { TopNav } from './components/navigation/TopNav';
 import { ThemeProvider } from './context/ThemeProvider';
+import { PreferencesProvider } from './context/PreferencesProvider';
 import { useHashRoute } from './hooks/useHashRoute';
 import type { PageProps, Route } from './types';
 import Home from './pages/Home/Home';
@@ -32,7 +33,9 @@ function RoutedApp() {
 export default function App() {
   return (
     <ThemeProvider>
-      <RoutedApp />
+      <PreferencesProvider>
+        <RoutedApp />
+      </PreferencesProvider>
     </ThemeProvider>
   );
 }
