@@ -2195,6 +2195,119 @@ input[type='range']::-moz-range-thumb {
   width: 100%;
 }
 
+/* ---------------------------------------------------------------------------
+   ABOUT
+   --------------------------------------------------------------------------- */
+
+.about-principles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.about-principle {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+}
+
+.about-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent);
+}
+
+.about-principle h2 {
+  margin: 6px 0 0;
+  font-size: 16px;
+}
+
+.about-principle p,
+.about-step p,
+.about-cta p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.about-flow {
+  margin-top: 16px;
+  padding: 28px;
+}
+
+.about-flow__head h2,
+.about-stack h2,
+.about-cta h2 {
+  margin: 8px 0 0;
+  font-size: 20px;
+}
+
+.about-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 26px;
+}
+
+.about-step {
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.about-step__number {
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.about-step h3 {
+  margin: 8px 0 6px;
+  font-size: 14px;
+}
+
+.about-stack {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 16px;
+  padding: 28px;
+}
+
+.about-stack__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.about-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-block: 16px 64px;
+  padding: 32px;
+  background:
+    radial-gradient(600px 200px at 90% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%),
+    var(--panel-soft);
+}
+
+.about-cta > div > svg {
+  color: var(--accent);
+}
+
+.about-cta p {
+  max-width: 620px;
+  margin-top: 8px;
+}
+
 @media (max-width: 1180px) {
   .studio-grid {
     grid-template-columns: 252px minmax(0, 1fr);
@@ -2309,5 +2422,20 @@ input[type='range']::-moz-range-thumb {
 
   .fullscreen-transport .player-volume {
     display: none;
+  }
+
+  .about-principles,
+  .about-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .about-stack,
+  .about-cta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .about-stack__chips {
+    justify-content: flex-start;
   }
 }
