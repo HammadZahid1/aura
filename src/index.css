@@ -1188,9 +1188,10 @@ input[type='range']::-moz-range-thumb {
 .studio-grid {
   display: grid;
   grid-template-columns: 288px minmax(0, 1fr) 268px;
-  grid-template-rows: minmax(460px, 62vh) auto;
+  grid-template-rows: minmax(460px, 62vh) auto auto;
   grid-template-areas:
     'library stage insights'
+    'controls controls controls'
     'player player player';
   gap: 14px;
 }
@@ -1198,7 +1199,53 @@ input[type='range']::-moz-range-thumb {
 .studio-library { grid-area: library; min-width: 0; }
 .studio-stage { grid-area: stage; min-width: 0; overflow: hidden; }
 .studio-insights { grid-area: insights; min-width: 0; }
+.studio-controls { grid-area: controls; min-width: 0; }
 .studio-player { grid-area: player; min-width: 0; }
+
+.controls-body {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 16px 20px;
+}
+
+.control-slider {
+  display: grid;
+  gap: 6px;
+  width: 300px;
+  max-width: 100%;
+  cursor: pointer;
+}
+
+.control-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.control-value {
+  color: var(--text);
+  font-size: 10px;
+}
+
+.control-hint {
+  color: var(--muted-deep);
+  font-size: 10px;
+}
+
+.controls-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-deep);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 .library-body {
   height: calc(100% - 57px);
@@ -1692,10 +1739,11 @@ input[type='range']::-moz-range-thumb {
 @media (max-width: 1180px) {
   .studio-grid {
     grid-template-columns: 252px minmax(0, 1fr);
-    grid-template-rows: minmax(440px, 58vh) auto auto;
+    grid-template-rows: minmax(440px, 58vh) auto auto auto;
     grid-template-areas:
       'library stage'
       'insights insights'
+      'controls controls'
       'player player';
   }
 
@@ -1714,11 +1762,12 @@ input[type='range']::-moz-range-thumb {
 @media (max-width: 780px) {
   .studio-grid {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(360px, 52vh) auto auto auto;
+    grid-template-rows: minmax(360px, 52vh) auto auto auto auto;
     grid-template-areas:
       'stage'
       'library'
       'insights'
+      'controls'
       'player';
   }
 

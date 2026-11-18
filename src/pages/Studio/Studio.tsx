@@ -3,6 +3,7 @@ import { UploadCloud } from 'lucide-react';
 import { AudioLibrary } from '../../components/studio/AudioLibrary';
 import { VisualizerStage } from '../../components/studio/VisualizerStage';
 import { AudioInsights } from '../../components/insights/AudioInsights';
+import { VisualizerControls } from '../../components/controls/VisualizerControls';
 import { PlayerBar } from '../../components/player/PlayerBar';
 import { useAudioDrop } from '../../hooks/useAudioDrop';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
@@ -103,6 +104,10 @@ export default function Studio() {
             onFullscreen={requestFullscreen}
           />
           <AudioInsights status={player.status} />
+          <VisualizerControls
+            config={config}
+            onChange={(patch) => setConfig((current) => ({ ...current, ...patch }))}
+          />
           <PlayerBar player={player} hasTrack={Boolean(track)} />
         </div>
         <div className="drop-overlay" aria-hidden={!isDragging}>
