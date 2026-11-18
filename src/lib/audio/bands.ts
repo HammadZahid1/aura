@@ -24,3 +24,8 @@ export function bandEnergy(
 export function calculateBassActivity(frequency: Uint8Array, sampleRate: number, fftSize: number): number {
   return bandEnergy(frequency, BAND_RANGES.bass.from, BAND_RANGES.bass.to, sampleRate, fftSize);
 }
+
+/** Relative mid-frequency activity (250–2000 Hz). */
+export function calculateMidActivity(frequency: Uint8Array, sampleRate: number, fftSize: number): number {
+  return bandEnergy(frequency, BAND_RANGES.mid.from, BAND_RANGES.mid.to, sampleRate, fftSize);
+}

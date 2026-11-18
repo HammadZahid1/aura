@@ -1,5 +1,5 @@
 import { FFT_SIZE, MAX_DECIBELS, MIN_DECIBELS, SMOOTHING_TIME_CONSTANT } from './audioConfig';
-import { calculateBassActivity } from './bands';
+import { calculateBassActivity, calculateMidActivity } from './bands';
 
 /**
  * Owns the browser's audio analysis graph.
@@ -113,6 +113,11 @@ export class AudioEngine {
   /** Relative bass activity from the most recently read frequency buffer. */
   get bass(): number {
     return calculateBassActivity(this.frequencyBuffer, this.sampleRate, FFT_SIZE);
+  }
+
+  /** Relative mid-frequency activity from the most recently read frequency buffer. */
+  get mid(): number {
+    return calculateMidActivity(this.frequencyBuffer, this.sampleRate, FFT_SIZE);
   }
 
   /** Root-mean-square level of the most recently read waveform buffer, normalised to 0..1. */
