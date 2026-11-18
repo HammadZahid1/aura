@@ -2,7 +2,8 @@ import { Maximize2, RotateCcw } from 'lucide-react';
 import { getMode } from '../../data/visualizers';
 import type { AudioEngine } from '../../lib/audio/AudioEngine';
 import { VisualizerCanvas } from '../visualizers/VisualizerCanvas';
-import type { FrequencyBands, PlaybackStatus, VisualizerConfig } from '../../types';
+import { ModeSwitcher } from './ModeSwitcher';
+import type { FrequencyBands, PlaybackStatus, VisualizerConfig, VisualizationMode } from '../../types';
 
 interface VisualizerStageProps {
   config: VisualizerConfig;
@@ -10,9 +11,21 @@ interface VisualizerStageProps {
   engineReady: boolean;
   engine: AudioEngine;
   onFrame?: (bands: FrequencyBands, level: number) => void;
+  onModeChange: (mode: VisualizationMode) => void;
+  onReset: () => void;
+  onFullscreen: () => void;
 }
 
-export function VisualizerStage({ config, status, engineReady, engine, onFrame }: VisualizerStageProps) {
+export function VisualizerStage({
+  config,
+  status,
+  engineReady,
+  engine,
+  onFrame,
+  onModeChange,
+  onReset,
+  onFullscreen,
+}: VisualizerStageProps) {
   const mode = getMode(config.mode);
   const active = status === 'playing';
 
@@ -28,17 +41,23 @@ export function VisualizerStage({ config, status, engineReady, engine, onFrame }
           </h2>
         </div>
         <div className="stage-actions">
-          <button className="icon-button" aria-label="Reset view" disabled title="Reset view">
+          <button className="icon-button" onClick={onReset} aria-label="Reset visualization" title="Reset view">
             <RotateCcw size={16} strokeWidth={1.8} aria-hidden="true" />
           </button>
-          <button className="icon-button" aria-label="Enter fullscreen" disabled title="Fullscreen">
+          <button className="icon-button" onClick={onFullscreen} aria-label="Enter fullscreen" title="Fullscreen">
             <Maximize2 size={16} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>
       </div>
+
+      <div className="stage-modes">
+        <ModeSwitcher mode={config.mode} onChange={onModeChange} />
+      </div>
+
       <div className="stage-canvas-wrap">
         <VisualizerCanvas engine={engine} config={config} active={active} onFrame={onFrame} />
       </div>
+
       <div className="stage-footer">
         <span className="chip">
           <span className="chip-dot" />

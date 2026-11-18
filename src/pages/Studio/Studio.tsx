@@ -7,13 +7,13 @@ import { PlayerBar } from '../../components/player/PlayerBar';
 import { useAudioDrop } from '../../hooks/useAudioDrop';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useAudioEngine } from '../../hooks/useAudioEngine';
-import { DEFAULT_CONFIG } from '../../data/visualizers';
+import { DEFAULT_CONFIG, MODE_IDS } from '../../data/visualizers';
 import { validateAudioFile } from '../../lib/audio/fileValidation';
 import { cn } from '../../lib/utilities/cn';
 import type { AudioTrack, VisualizerConfig } from '../../types';
 
 export default function Studio() {
-  const [config] = useState<VisualizerConfig>(DEFAULT_CONFIG);
+  const [config, setConfig] = useState<VisualizerConfig>(DEFAULT_CONFIG);
   const [track, setTrack] = useState<AudioTrack | null>(null);
   const [error, setError] = useState<string | null>(null);
   const objectUrlRef = useRef<string | null>(null);
@@ -52,6 +52,25 @@ export default function Studio() {
 
   const { isDragging, dropHandlers } = useAudioDrop(handleFile);
 
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      const index = Number(event.key) - 1;
+      if (index >= 0 && index < MODE_IDS.length) {
+        setConfig((current) => ({ ...current, mode: MODE_IDS[index] }));
+      }
+    };
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
+  }, []);
+
+  const requestFullscreen = () => {
+    if (document.fullscreenElement) return;
+    void document.documentElement.requestFullscreen?.().catch(() => undefined);
+  };
+
   return (
     <div className="page studio-page container">
       <div className="studio-heading">
@@ -79,6 +98,9 @@ export default function Studio() {
             status={player.status}
             engineReady={engineReady}
             engine={engine}
+            onModeChange={(mode) => setConfig((current) => ({ ...current, mode }))}
+            onReset={() => setConfig(DEFAULT_CONFIG)}
+            onFullscreen={requestFullscreen}
           />
           <AudioInsights status={player.status} />
           <PlayerBar player={player} hasTrack={Boolean(track)} />
